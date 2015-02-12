@@ -221,15 +221,17 @@ compl.act$TypeOfDay<-as.factor(ifelse(weekdays(compl.act$date) %in% dayofweek[1:
 TypeOfDay.avgs<-aggregate(steps ~ interval+TypeOfDay, data=compl.act, FUN="mean")
 par(mfrow=c(2,1))
 plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"], type="l", lwd=2, main="Average number of steps in each 5' interval on weekday days",
-     xlab="", ylab="# of steps", col="red", bg="blue", axes=FALSE)
+     xlab="", ylab="# of steps", ylim=c(0,240),  col="red", bg="blue", axes=FALSE)
 axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
      labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
-axis(2, at=seq(0, 200, by=20), cex.axis=0.8)
+axis(2, at=seq(0, 240, by=20), cex.axis=0.8)
+box()
 plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekend"], type="l", lwd=2, main="Average number of steps in each 5' interval on weekend days",
-     xlab="", ylab="# of steps", col="blue", axes=FALSE)
+     xlab="", ylab="# of steps", ylim=c(0,240), col="blue", axes=FALSE)
 axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
      labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
-axis(2, at=seq(0, 200, by=20), cex.axis=0.8) 
+axis(2, at=seq(0, 240, by=20), cex.axis=0.8) 
+box()
 ```
 
 
