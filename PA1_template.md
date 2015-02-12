@@ -4,7 +4,7 @@ output:
   html_document:
     keep_md: true
 ---
-STEPS ALONG TWO MONTHS
+STEPS TAKEN ALONG TWO MONTHS
 ======================
 **_by Max Testa_**
 
@@ -25,11 +25,14 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] knitr_1.8
+## [1] lattice_0.20-29 ggplot2_1.0.0   knitr_1.8      
 ## 
 ## loaded via a namespace (and not attached):
-## [1] evaluate_0.5.5 formatR_1.0    markdown_0.7.4 mime_0.2      
-## [5] stringr_0.6.2  tools_3.1.1
+##  [1] colorspace_1.2-4 digest_0.6.4     evaluate_0.5.5   formatR_1.0     
+##  [5] grid_3.1.1       gtable_0.1.2     labeling_0.3     markdown_0.7.4  
+##  [9] MASS_7.3-35      mime_0.2         munsell_0.4.2    plyr_1.8.1      
+## [13] proto_0.3-10     Rcpp_0.11.3      reshape2_1.4.1   scales_0.2.4    
+## [17] stringr_0.6.2    tools_3.1.1
 ```
 
 
@@ -84,15 +87,15 @@ It is noteworthy that the following days don't have any observation at all and
 contain all the `2304 NAs` of the dataset:
 
 ```r
-## only the dates without any of its 12*24=288 values is considered
-print(which(tapply(is.na(activity$step),activity$date, sum)==12*24))
+## only the dates with all their 12*24=288 values==NAs are considered
+which.dates.with.NAs<-which(tapply(is.na(activity$step),activity$date, sum)==12*24)
+print(paste(dates.with.NAs<-unique(activity$date)[which.dates.with.NAs], weekdays(dates.with.NAs), sep=" "))
 ```
 
 ```
-## 2012-10-01 2012-10-08 2012-11-01 2012-11-04 2012-11-09 2012-11-10 
-##          1          8         32         35         40         41 
-## 2012-11-14 2012-11-30 
-##         45         61
+## [1] "2012-10-01 Monday"    "2012-10-08 Monday"    "2012-11-01 Thursday" 
+## [4] "2012-11-04 Sunday"    "2012-11-09 Friday"    "2012-11-10 Saturday" 
+## [7] "2012-11-14 Wednesday" "2012-11-30 Friday"
 ```
 
 The total number of steps per each day is computed and put into the new
@@ -107,7 +110,7 @@ names(values.per.day)[2]<-"tot.steps"
 
 
 ## What is mean total number of steps taken per day?
-The frequencies of the total number of steps per day are distributed as per the following histogram, where is added also a vertical line corresponding to the close values of the median and of the mean of the total number of steps per day.
+The frequencies of the total number of steps per day are distributed as per the following histogram, where is also added a vertical line corresponding to the close values of the median and of the mean of the total number of steps per day.
 
 ```r
 histogram1<-hist(values.per.day$tot.steps, breaks=12, main="Histogram of total steps per day", xlim=c(0,24000),
@@ -196,7 +199,7 @@ The activity increments significantly between 0535 and 0605 and even more from 0
 The number of rows with missing values (NAs) is quite relevant, both in absolute terms (=`2304`) and in relative terms (=`13%`).
 
 In order to impute the missing values to the intervals of the 8 dates with NAs,  the average of the corresponding values across the same days of the week are
-taken; in this way the typical characteristics of each day of the week are kept.
+taken and put in the columns of a new dataframe called ``DoW.avgs``; in this way the typical characteristics of each day of the week are kept.
 
 
 ```r
@@ -222,11 +225,35 @@ for (i in 1:7){
   DoW.avgs<-cbind(DoW.avgs, aggregate(steps ~ interval, data=data.ref, FUN="mean")[2])
 }
 names(DoW.avgs)=c("interval", paste("avg.step", dayofweek, sep="."))
+```
 
-## creates a copy of the "activity" df and calls it "compl.act"
+The following table shows the median and the mean of each day of the week:
+
+```r
+compare.values<-cbind(dayofweek,
+                median.val=round(sapply(DoW.avgs[2:8], median),1),
+                mean.val=round(sapply(DoW.avgs[2:8], mean),1))
+rownames(compare.values)<-rep("", 7)
+kable(compare.values, align = c("l", rep("r", 2)))
+```
+
+
+
+|   |dayofweek | median.val| mean.val|
+|:--|:---------|----------:|--------:|
+|   |Monday    |        8.2|     34.6|
+|   |Tuesday   |       14.8|     31.1|
+|   |Wednesday |       12.6|     40.9|
+|   |Thursday  |        7.8|     28.5|
+|   |Friday    |       15.5|     42.9|
+|   |Saturday  |       16.4|     43.5|
+|   |Sunday    |       23.9|     42.6|
+
+A copy of the ``activity`` df is made and called ``compl.act``: its NAs values will be reconstructed using the values of the relevant day of the week from ``DoW.avgs``dataframe.
+
+
+```r
 compl.act<-activity
-## completes the missing values of each uncomplete dates of "compl.act"
-## with the averaged values of the correspondnt day.of.the.week
 for(i in 1:dim(uncomplete.dates[1])[1]){
   compl.act$steps[compl.act$date==uncomplete.dates$date[i]]<-DoW.avgs[,which(dayofweek==uncomplete.dates$DoW[i])+1]
 }
@@ -241,7 +268,8 @@ compl.values.per.day<-aggregate(steps ~ date, data=compl.act, sum, na.rm=TRUE)
 names(compl.values.per.day)[2]<-"tot.steps"
 ```
 
-The frequencies of the total number of steps per day - including the 8 with reconstructed values - are distributed as per the following histogram, where are added also two vertical lines corresponding to the values of the median and of the mean of the total number of steps per day.
+The frequencies of the total number of steps per day - including the 8 with imputed values - are distributed as per the following histogram, where are also added two vertical lines corresponding to the values of the median and of
+the mean of the total number of steps per day.
 
 ```r
 tit="Histogram of total steps per day (reconstructed dataset)"
@@ -263,7 +291,8 @@ text(paste(round(compl.median.tot.steps,0), " = median value",sep=""),
 
 ![plot of chunk showing_histogram_on_completed_data](figure/showing_histogram_on_completed_data-1.png) 
 
-As already shown in the above histogram also in this dataset with missing values reconstructed, the values of the  median = `11015` and of the mean =  `10821.2` of the total number of steps per day are still quite close, but less than those of the dataset with NAs. The new values calculated on the "reconstructed dataset" are greater that the correspondent values calculated on the dataset with NAs; it shows  that the missing values are more concentrated in those days of the week that, on average, have a greater number of steps.
+As already shown in the above histogram also in this dataset with imputed values, the median (= `11015`) and the mean (=  `10821.2`) of the total number of steps per day are still quite close, but less than those of the dataset with NAs.
+As the following table shows, the new values calculated on the "reconstructed dataset" (with imputed values) are greater that the correspondent values calculated on the original dataset with NAs.
 
 
 ```r
@@ -283,10 +312,40 @@ kable(compare, digits = 2, align = c("l", rep("r", 2)))
 |reconstructed |  11015| 10821.2|
 |delta         |    250|    55.0|
 
+This result derives from the fact that the dates with missing values correspond to days of the week with an average number of steps above the weekly averaged value.
+
+
 ## Are there differences in activity patterns between weekdays and weekends?
+A new factor variable, called ``TypeOfDay (weekend, weekday)``, is added to the ``compl.act`` dataframe.
 
 ```r
-Sys.setlocale("LC_TIME", "en_US.UTF-8") ## to set the language to English
+compl.act$TypeOfDay<-as.factor(ifelse(weekdays(compl.act$date) %in% dayofweek[1:5], "weekday","weekend"))
+## create a new dataframe with the number of steps taken in 5'-intervals averaged across weekday days and weeekend days
+TypeOfDay.avgs<-aggregate(steps ~ interval+TypeOfDay, data=compl.act, FUN="mean")
+par(mfrow=c(2,1))
+plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"], type="l", lwd=2, main="Average number of steps in each 5' interval on weekday days",
+     xlab="", ylab="# of steps", col="red", bg="blue", axes=FALSE)
+axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
+     labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
+axis(2, at=seq(0, 200, by=20), cex.axis=0.8)
+plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekend"], type="l", lwd=2, main="Average number of steps in each 5' interval on weekend days",
+     xlab="", ylab="# of steps", col="blue", axes=FALSE)
+axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
+     labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
+axis(2, at=seq(0, 200, by=20), cex.axis=0.8) 
 ```
 
-[1] "en_US.UTF-8"
+![plot of chunk comparing.weekdays.weekend.basic](figure/comparing.weekdays.weekend.basic-1.png) 
+
+
+The following two plots, produced using "lattice", represent the same comparison of patterns belonging to weekday days and weekend days.
+
+
+```r
+xyplot(steps ~ as.numeric(interval)| TypeOfDay, data=TypeOfDay.avgs, type="l",
+        lwd=2,  layout=c(1,2), xlab="intervals")
+```
+
+![plot of chunk plotting.weekday.weekend.patterns.with.lattice](figure/plotting.weekday.weekend.patterns.with.lattice-1.png) 
+
+

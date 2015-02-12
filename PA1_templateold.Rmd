@@ -40,7 +40,7 @@ names(values.per.day)[2]<-"tot.steps"
 ```
 
 ## What is mean total number of steps taken per day?
-The frequencies of the total number of steps per day ("values.per.day$tot.steps") are distributed as per the following histogram, where is added also a vertical line corresponding to the very close values of the median and of the mean of the total number of steps per day.
+The frequencies of the total number of steps per day ("values.per.day$tot.steps") are distributed as per the following histogram, where is also added a vertical line that corresponds to the two very close values of the median and of the mean of the total number of steps per day.
 ```{r chunk for_showing_histogram_total_number_steps_per_day, results='asis', echo=TRUE}
 histogram1<-hist(values.per.day$tot.steps, breaks=12, main="Histogram of total steps per day", xlim=c(0,24000),
      ylim = c(0,20), xlab="Ranges of total number of steps per day", axes=FALSE, col="lightblue")
@@ -82,7 +82,7 @@ text(paste("average = ", round(mean(daily.pattern$steps,1)), sep=""), x=10,
      y=round(mean(daily.pattern$steps,0))+2, adj=c(0,0), cex=0.9, col="red")
 ```
 
-The 5'-interval with the maximum number of steps on average across all days is the one starting at 0835.
+The 5'-interval with the maximum number of steps on average across all day is the one starting at 0835.
 ```{r chunk for_identifying_max_5_interval, results='markup', echo=TRUE}
 ## finds the interval with the maximum number of steps on average
 print(daily.pattern[which.max(daily.pattern$step),]) 
