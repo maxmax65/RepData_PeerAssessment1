@@ -118,8 +118,10 @@ hist(values.per.day$tot.steps, breaks=12, main="Histogram of total steps per day
      ylim = c(0,20), xlab="Ranges of total number of steps per day", axes=FALSE, col="lightblue")
 axis(1,at = seq(0,24000,4000),labels = TRUE,pos = 0)
 axis(2,at = seq(0,20,2),labels = TRUE,pos = 0)
-mean.tot.steps<-round(mean(values.per.day$tot.steps),1) ## to be used in the plot and in the subsequent question
-median.tot.steps<-median(values.per.day$tot.steps) ## to be used in the plot and in the subsequent question
+mean.tot.steps<-round(mean(values.per.day$tot.steps),1) ## to be used in the plot
+                                                ## and in the subsequent question
+median.tot.steps<-median(values.per.day$tot.steps) ## to be used in the plot and
+                                                ## and in the subsequent question
 abline(v=mean.tot.steps, col ="red", lwd=2)
 text(paste(mean.tot.steps, " = mean value",sep=""),
      x=11500, y=17, adj=c(0,0), cex=0.8, srt=30)
@@ -213,13 +215,15 @@ uncomplete.dates<-data.frame(date=unique(activity$date[which(is.na(activity$step
 ## associate the day-of-the-week (var DoW) to each element of "uncomplete.dates"
 ## df using the function weekdays()
 uncomplete.dates<-cbind(uncomplete.dates, DoW=weekdays(uncomplete.dates$date))
-## DoW.avgs (Days-of-Weeks.averages) contains in its first column the 288 5'-intervals and in each of the following 7 columns the 288 number of steps
+## DoW.avgs (Days-of-Weeks.averages) contains in its first column the 288 5'
+## intervals and in each of the following 7 columns the 288 number of steps
 ## averaged across every day of the week, from Monday (col 2) to Sunday (col8)
 
 ## initizialize DoW.avgs with the var "interval" [0000 ... 2355] as first row
 DoW.avgs<-data.frame(interval=unique(activity$interval))
 dayofweek=c("Monday", "Tuesday", "Wednesday","Thursday","Friday", "Saturday", "Sunday")
-## calculates and stores in DoW.avgs columns the average number of steps in each 5'-interval from "Monday" to "Sunday"  
+## calculates and stores in DoW.avgs columns the average number of steps in each
+## 5'-interval from "Monday" to "Sunday"  
 for (i in 1:7){
   ## subsetting the activity dataset per day-of-the-week and eliminating the NAs
   data.ref<-cbind(subset(activity,
@@ -325,21 +329,26 @@ kable(compare, digits = 2, align = c("l", rep("r", 2)))
 This result comes from the fact that the dates with missing values correspond to days of the week with an average number of steps above the weekly-averaged value.
 
 
+
+
 ## Are there differences in activity patterns between weekdays and weekends?
 A new factor variable, called ``TypeOfDay [weekend, weekday]``, is added to the ``compl.act`` dataframe.
 
 ```r
 compl.act$TypeOfDay<-as.factor(ifelse(weekdays(compl.act$date) %in% dayofweek[1:5], "weekday","weekend"))
-## create a new dataframe with the number of steps taken in 5'-intervals averaged across weekday days and weeekend days
+## create a new dataframe with the number of steps taken in 5'-intervals
+## averaged across weekday days and weeekend days
 TypeOfDay.avgs<-aggregate(steps ~ interval+TypeOfDay, data=compl.act, FUN="mean")
 par(mfrow=c(2,1))
-plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"], type="l", lwd=2, main="Average number of steps in each 5' interval on weekday days",
+plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"], type="l", lwd=2,
+     main="Average number of steps in each 5' interval on weekday days",
      xlab="", ylab="# of steps", ylim=c(0,240),  col="red", bg="blue", axes=FALSE)
 axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
      labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
 axis(2, at=seq(0, 240, by=20), cex.axis=0.8)
 box()
-plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekend"], type="l", lwd=2, main="Average number of steps in each 5' interval on weekend days",
+plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekend"], type="l", lwd=2,
+     main="Average number of steps in each 5' interval on weekend days",
      xlab="", ylab="# of steps", ylim=c(0,240), col="blue", axes=FALSE)
 axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
      labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
@@ -349,5 +358,23 @@ box()
 
 ![plot of chunk second.plot.comparing.weekdays.weekend.basic](figure/second.plot.comparing.weekdays.weekend.basic-1.png) 
 
+Looking at the comparison of the above figures and at the following figure - that for each interval plots the differnce between the number of steps averaged across  weekday days and the one averaged across weekend days - it comes up that in weekday days the activity starts earlier in the morning and has a greater peak, while in weekend days it decreases later and presents greater values from mid  morning to early night.
+
+
+```r
+DELTA<-TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"]-
+         TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekend"]
+plot(DELTA, type="l",
+     main="DELTA (weekday - weekend) number of steps in each 5' interval",
+     lwd=2, xlab="", ylab="# of steps of difference", ylim=c(-140,140),
+     col="purple", axes=FALSE)
+axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
+      labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
+axis(2, at=seq(-140, 140, by=20), cex.axis=0.8) 
+abline(h=0, col="red", lty=2, lwd=2)
+box()
+```
+
+![plot of chunk plottting.the deltas](figure/plottting.the deltas-1.png) 
 
 
