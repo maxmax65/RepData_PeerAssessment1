@@ -4,11 +4,13 @@ output:
   html_document:
     keep_md: true
 ---
-STEPS TAKEN ALONG TWO MONTHS
+HOW MANY STEPS TAKEN ALONG TWO MONTHS !
 ======================
 **_by Max Testa_**
 
+This project analyses and shows some basic charactarestics of a dataset containing two months-long observations of the number of steps made and recorded every 5 minutes from 2012-10-01 to 2012-11-30.
 
+This is the configuration of the system on which the analysis has been performed. 
 
 ```r
 sessionInfo()
@@ -25,25 +27,23 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] lattice_0.20-29 ggplot2_1.0.0   knitr_1.8      
+## [1] lattice_0.20-29 knitr_1.8      
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] colorspace_1.2-4 digest_0.6.4     evaluate_0.5.5   formatR_1.0     
-##  [5] grid_3.1.1       gtable_0.1.2     labeling_0.3     markdown_0.7.4  
-##  [9] MASS_7.3-35      mime_0.2         munsell_0.4.2    plyr_1.8.1      
-## [13] proto_0.3-10     Rcpp_0.11.3      reshape2_1.4.1   scales_0.2.4    
-## [17] stringr_0.6.2    tools_3.1.1
+## [1] evaluate_0.5.5 formatR_1.0    grid_3.1.1     markdown_0.7.4
+## [5] mime_0.2       stringr_0.6.2  tools_3.1.1
 ```
 
 
 
 
+
+
+
 ## Loading and preprocessing the data
-The data, representing the observations of the number of steps in 5' intervals
-recorded from 2012-10-01 to 2012-11-30, are stored in `activity.csv` file,
-downloaded from [Project site: repdata_data_activity.zip](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip) [52K]
-and unzipped in the working directory.
-Data are read into a dataframe called `activity`, with its own structure:
+The data file [repdata_data_activity.zip](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip), dowloaded from the project site, has been  unzipped and is present as `activity.csv`` file in the working directory.
+
+Data are read into a dataframe called `activity`, with the following structure:
 
 ```r
 activity<-read.csv("activity.csv", header=TRUE, stringsAsFactor=FALSE)
@@ -57,16 +57,15 @@ str(activity)
 ##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
 
-Variable `interval` is transformed from an `integer` into a `4 digit string`
-to make it more uniform and meaningful.
-Variable `date` is coerced to class "Date".
+The variable `interval` is transformed into a `4 digit string` to make it more uniform and meaningful.
+Variable `date` is coerced to class "Date", to make easier the handling of the days of the week and of weekday/weekend days.
 
 ```r
 activity$interval<-sprintf("%04d", activity$interval) ## from 0000 to 2355
 activity$date<-as.Date(activity$date)
 ```
 
-Dataframe principal caracteristics are as follows:
+Dataset principal caracteristics are as follows:
 
 ```r
 summary(activity)
@@ -83,7 +82,7 @@ summary(activity)
 ##  NA's   :2304
 ```
 
-It is noteworthy that the following days don't have any observation at all and
+It is noteworthy that the following days don't have any valid observations and
 contain all the `2304 NAs` of the dataset:
 
 ```r
@@ -109,11 +108,13 @@ names(values.per.day)[2]<-"tot.steps"
 ```
 
 
+
+
 ## What is mean total number of steps taken per day?
-The frequencies of the total number of steps per day are distributed as per the following histogram, where is also added a vertical line corresponding to the close values of the median and of the mean of the total number of steps per day.
+The frequencies of the total number of steps per day are distributed as per the following histogram, that shows also a vertical line that corresponds to the close values of the median and of the mean of the total number of steps per day.
 
 ```r
-histogram1<-hist(values.per.day$tot.steps, breaks=12, main="Histogram of total steps per day", xlim=c(0,24000),
+hist(values.per.day$tot.steps, breaks=12, main="Histogram of total steps per day", xlim=c(0,24000),
      ylim = c(0,20), xlab="Ranges of total number of steps per day", axes=FALSE, col="lightblue")
 axis(1,at = seq(0,24000,4000),labels = TRUE,pos = 0)
 axis(2,at = seq(0,20,2),labels = TRUE,pos = 0)
@@ -126,9 +127,11 @@ text(paste(median.tot.steps, " = median value",sep=""),
      x=11500, y=16, adj=c(0,0), cex=0.8, srt=30)
 ```
 
-![plot of chunk showing_histogram](figure/showing_histogram-1.png) 
+![plot of chunk firts_histogram](figure/firts_histogram-1.png) 
 
-As already shown in the above histogram the values of the  median = `10765` and of the mean =  `10766.2` of the total number of steps per day are very close
+As already shown in the above histogram the median = `10765` and the mean =  `10766.2` values of the total number of steps per day are very close to each other.
+
+
 
 
 ## What is the average daily activity pattern?
@@ -137,13 +140,10 @@ The number of steps in each 5'-interval is averaged across all days
 (excluding those with NAs) and put into a new dataframe ``daily.pattern``.
 
 ```r
-## creates a variable to host the number of steps in each interval averaged
-## across all days - NAs are not considered
 daily.pattern<-aggregate(steps ~ interval, data=activity, FUN="mean", na.rm=TRUE)
 ```
 
-The ``daily.pattern`` is shown in the following line plot, whose x-axis refers
-to the intervals from 0000 to 2355, showing only a limited number of them at regular space for sake of clarity
+The ``daily.pattern`` is shown in the following line plot, whose x-axis refers to  the 5'-intervals from 0000 to 2355, of which only 5 are used as labels at regular space for sake of clarity.
 
 
 ```r
@@ -160,7 +160,8 @@ text(paste("average = ", round(mean(daily.pattern$steps,1)), sep=""), x=10,
      y=round(mean(daily.pattern$steps,0))+2, adj=c(0,0), cex=0.9, col="red")
 ```
 
-![plot of chunk plotting the pattern](figure/plotting the pattern-1.png) 
+![plot of chunk first_plotting_pattern](figure/first_plotting_pattern-1.png) 
+
 
 The 5'-interval with the maximum number of steps on average across all days is the one starting at 0835.
 
@@ -174,11 +175,12 @@ daily.pattern[which.max(daily.pattern$step),]
 ## 104     0835 206.1698
 ```
 
+
 As shown in the plot, on average the activity is very limited (below 5 steps per 5'-interval) from 0000 to 0530 and after 2235
 
 ```r
 ## identifies and shows the set of all the 5'-intervals with less than 5 steps
-print(daily.pattern$interval[which(daily.pattern$steps<5)])
+daily.pattern$interval[which(daily.pattern$steps<5)]
 ```
 
 ```
@@ -195,11 +197,12 @@ print(daily.pattern$interval[which(daily.pattern$steps<5)])
 The activity increments significantly between 0535 and 0605 and even more from 0800 to 0835, when it reaches its maximum value; afterwards it goes under the average value and then oscillates between around 20 and 100 steps per 5'-interval until around 2100, when it starts a descending trend.
 
 
+
+
 ## Imputing missing values
 The number of rows with missing values (NAs) is quite relevant, both in absolute terms (=`2304`) and in relative terms (=`13%`).
 
-In order to impute the missing values to the intervals of the 8 dates with NAs,  the average of the corresponding values across the same days of the week are
-taken and put in the columns of a new dataframe called ``DoW.avgs``; in this way the typical characteristics of each day of the week are kept.
+In order to impute the missing values of the 8 dates with NAs, for every day of the week the average number of steps in each 5'-interval is calculated and stored  in the columns of a new dataframe called ``DoW.avgs``; in this way the typical characteristics of each day of the week are kept.
 
 
 ```r
@@ -210,24 +213,28 @@ uncomplete.dates<-data.frame(date=unique(activity$date[which(is.na(activity$step
 ## associate the day-of-the-week (var DoW) to each element of "uncomplete.dates"
 ## df using the function weekdays()
 uncomplete.dates<-cbind(uncomplete.dates, DoW=weekdays(uncomplete.dates$date))
-## defines a new df, called DoW.avgs (Days-of-Weeks.averages) that in its first
-## column contains the 288 5'-intervals and in each of the following 7 columns
-## the 288 number of steps averaged across every day of the week, from Monday
-## (col 2) to Sunday (col8)
-DoW.avgs<-data.frame(interval=unique(activity$interval)) ## initizialized with
-                                                         ## the var "interval"
+## DoW.avgs (Days-of-Weeks.averages) contains in its first column the 288 5'-intervals and in each of the following 7 columns the 288 number of steps
+## averaged across every day of the week, from Monday (col 2) to Sunday (col8)
+
+## initizialize DoW.avgs with the var "interval" [0000 ... 2355] as first row
+DoW.avgs<-data.frame(interval=unique(activity$interval))
 dayofweek=c("Monday", "Tuesday", "Wednesday","Thursday","Friday", "Saturday", "Sunday")
+## calculates and stores in DoW.avgs columns the average number of steps in each 5'-interval from "Monday" to "Sunday"  
 for (i in 1:7){
   ## subsetting the activity dataset per day-of-the-week and eliminating the NAs
-  data.ref<-cbind(subset(activity, weekdays(date)==dayofweek[i]& !is.na(activity$steps)))
+  data.ref<-cbind(subset(activity,
+                         weekdays(date)==dayofweek[i]& !is.na(activity$steps)))
   ## calculates the average number of steps for each 5'-interval and
   ## stores it into as the (i+1)-th new column of DoW.avgs dataframe
-  DoW.avgs<-cbind(DoW.avgs, aggregate(steps ~ interval, data=data.ref, FUN="mean")[2])
+  DoW.avgs<-cbind(DoW.avgs,
+                  aggregate(steps ~ interval, data=data.ref, FUN="mean")[2])
 }
+## assigns significant names to DoW.avgs columns
 names(DoW.avgs)=c("interval", paste("avg.step", dayofweek, sep="."))
 ```
 
-The following table shows the median and the mean of each day of the week:
+
+The following table shows the median and the mean calculated across each day of the week:
 
 ```r
 compare.values<-cbind(dayofweek,
@@ -249,15 +256,18 @@ kable(compare.values, align = c("l", rep("r", 2)))
 |   |Saturday  |       16.4|     43.5|
 |   |Sunday    |       23.9|     42.6|
 
-A copy of the ``activity`` df is made and called ``compl.act``: its NAs values will be reconstructed using the values of the relevant day of the week from ``DoW.avgs``dataframe.
+
+A copy of the ``activity`` df is made into a new dataframe called ``compl.act``: its NAs values are substituted with the corresponding values of the relevant day of the week from ``DoW.avgs`` dataframe.
 
 
 ```r
 compl.act<-activity
 for(i in 1:dim(uncomplete.dates[1])[1]){
-  compl.act$steps[compl.act$date==uncomplete.dates$date[i]]<-DoW.avgs[,which(dayofweek==uncomplete.dates$DoW[i])+1]
+  compl.act$steps[compl.act$date==uncomplete.dates$date[i]]<-
+      DoW.avgs[,which(dayofweek==uncomplete.dates$DoW[i])+1]
 }
 ```
+
 
 The total number of steps per each day - including the 8 with reconstructed
 values - is computed and put into the new dataframe `compl.values.per.day`.
@@ -268,12 +278,12 @@ compl.values.per.day<-aggregate(steps ~ date, data=compl.act, sum, na.rm=TRUE)
 names(compl.values.per.day)[2]<-"tot.steps"
 ```
 
-The frequencies of the total number of steps per day - including the 8 with imputed values - are distributed as per the following histogram, where are also added two vertical lines corresponding to the values of the median and of
+The frequencies of the total number of steps per day - including the 8 with imputed values - are distributed as per the following histogram, that shows also two vertical lines corresponding to the values of the median and of
 the mean of the total number of steps per day.
 
 ```r
 tit="Histogram of total steps per day (reconstructed dataset)"
-histogram2<-hist(compl.values.per.day$tot.steps, breaks=12, main=tit, xlim=c(0,24000),
+hist(compl.values.per.day$tot.steps, breaks=12, main=tit, xlim=c(0,24000),
      ylim = c(0,20), xlab="Ranges of total number of steps per day", axes=FALSE, col="lightblue")
 axis(1,at = seq(0,24000,4000),labels = TRUE,pos = 0)
 axis(2,at = seq(0,20,2),labels = TRUE,pos = 0)
@@ -289,9 +299,9 @@ text(paste(round(compl.median.tot.steps,0), " = median value",sep=""),
      x=11500, y=17.5, adj=c(0,0), cex=0.8, srt=30)
 ```
 
-![plot of chunk showing_histogram_on_completed_data](figure/showing_histogram_on_completed_data-1.png) 
+![plot of chunk second.histogram.on.completed.data](figure/second.histogram.on.completed.data-1.png) 
 
-As already shown in the above histogram also in this dataset with imputed values, the median (= `11015`) and the mean (=  `10821.2`) of the total number of steps per day are still quite close, but less than those of the dataset with NAs.
+As already shown in the above histogram, also in this dataset with imputed values the median (= `11015`) and the mean (=  `10821.2`) of the total number of steps per day are still quite close, but less than those of the dataset with NAs.
 As the following table shows, the new values calculated on the "reconstructed dataset" (with imputed values) are greater that the correspondent values calculated on the original dataset with NAs.
 
 
@@ -312,16 +322,16 @@ kable(compare, digits = 2, align = c("l", rep("r", 2)))
 |reconstructed |  11015| 10821.2|
 |delta         |    250|    55.0|
 
-This result derives from the fact that the dates with missing values correspond to days of the week with an average number of steps above the weekly averaged value.
+This result comes from the fact that the dates with missing values correspond to days of the week with an average number of steps above the weekly-averaged value.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-A new factor variable, called ``TypeOfDay (weekend, weekday)``, is added to the ``compl.act`` dataframe.
+A new factor variable, called ``TypeOfDay [weekend, weekday]``, is added to the ``compl.act`` dataframe.
 
 ```r
 compl.act$TypeOfDay<-as.factor(ifelse(weekdays(compl.act$date) %in% dayofweek[1:5], "weekday","weekend"))
 ## create a new dataframe with the number of steps taken in 5'-intervals averaged across weekday days and weeekend days
-TypeOfDay.avgs<-aggregate(steps ~ interval+TypeOfDay, data=compl.act, FUN="mean")
+TypeOfDay.avgs<-aggregate(steps ~ interval+TypeOfDay, data=compl.act, FUN="mean")
 par(mfrow=c(2,1))
 plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"], type="l", lwd=2, main="Average number of steps in each 5' interval on weekday days",
      xlab="", ylab="# of steps", ylim=c(0,240),  col="red", bg="blue", axes=FALSE)
@@ -337,7 +347,7 @@ axis(2, at=seq(0, 240, by=20), cex.axis=0.8)
 box()
 ```
 
-![plot of chunk comparing.weekdays.weekend.basic](figure/comparing.weekdays.weekend.basic-1.png) 
+![plot of chunk second.plot.comparing.weekdays.weekend.basic](figure/second.plot.comparing.weekdays.weekend.basic-1.png) 
 
 
 The following two plots, produced using "lattice", represent the same comparison of patterns belonging to weekday days and weekend days.
@@ -348,6 +358,4 @@ xyplot(steps ~ as.numeric(interval)| TypeOfDay, data=TypeOfDay.avgs, type="l",
         lwd=2,  layout=c(1,2), xlab="intervals")
 ```
 
-![plot of chunk plotting.weekday.weekend.patterns.with.lattice](figure/plotting.weekday.weekend.patterns.with.lattice-1.png) 
-
-
+![plot of chunk second.plotting.weekday.weekend.patterns.with.lattice](figure/second.plotting.weekday.weekend.patterns.with.lattice-1.png) 
