@@ -248,12 +248,13 @@ box()
 ```
 
 
-The following two plots, produced using "lattice", represent the same comparison of patterns belonging to weekday days and weekend days.
+```{r second.plotting.weekday.weekend.patterns.with.lattice, results="hide", echo=FALSE}
+##The following two plots, produced using "lattice", represent the same
+## comparison of patterns belonging to weekday days and weekend days.
 
-```{r second.plotting.weekday.weekend.patterns.with.lattice, results="markup", echo=2}
-library(lattice)
-xyplot(steps ~ as.numeric(interval)| TypeOfDay, data=TypeOfDay.avgs, type="l",
-        lwd=2,  layout=c(1,2), xlab="intervals")
+## library(lattice)
+## xyplot(steps ~ as.numeric(interval)| TypeOfDay, data=TypeOfDay.avgs, type="l",
+##        lwd=2,  layout=c(1,2), xlab="intervals")
 ## the following lines of code work well on the Console, but with knit2html
 ##produce the same plot twice (first with only the red line for weeekday, then
 ##with both the lines) --> so I decided to keep them as commented lines for

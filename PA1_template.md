@@ -350,12 +350,4 @@ box()
 ![plot of chunk second.plot.comparing.weekdays.weekend.basic](figure/second.plot.comparing.weekdays.weekend.basic-1.png) 
 
 
-The following two plots, produced using "lattice", represent the same comparison of patterns belonging to weekday days and weekend days.
 
-
-```r
-xyplot(steps ~ as.numeric(interval)| TypeOfDay, data=TypeOfDay.avgs, type="l",
-        lwd=2,  layout=c(1,2), xlab="intervals")
-```
-
-![plot of chunk second.plotting.weekday.weekend.patterns.with.lattice](figure/second.plotting.weekday.weekend.patterns.with.lattice-1.png) 
