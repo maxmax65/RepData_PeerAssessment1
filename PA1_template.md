@@ -332,36 +332,35 @@ This result comes from the fact that the dates with missing values correspond to
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-A new factor variable, called ``TypeOfDay [weekend, weekday]``, is added to the ``compl.act`` dataframe.
+A new factor variable, called ``TypeOfDay [weekend, weekday]``, is added to the ``compl.act`` dataframe and on its basis the average number of steps per each 5'-interval of across weekday and weekend is calculated and put in the ``TypeOfDay.avgs`` new dataframe.
+
 
 ```r
 compl.act$TypeOfDay<-as.factor(ifelse(weekdays(compl.act$date) %in% dayofweek[1:5], "weekday","weekend"))
 ## create a new dataframe with the number of steps taken in 5'-intervals
 ## averaged across weekday days and weeekend days
 TypeOfDay.avgs<-aggregate(steps ~ interval+TypeOfDay, data=compl.act, FUN="mean")
-par(mfrow=c(2,1))
-plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"], type="l", lwd=2,
-     main="Average number of steps in each 5' interval on weekday days",
-     xlab="", ylab="# of steps", ylim=c(0,240),  col="red", bg="blue", axes=FALSE)
-axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
-     labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
-axis(2, at=seq(0, 240, by=20), cex.axis=0.8)
-box()
-plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekend"], type="l", lwd=2,
-     main="Average number of steps in each 5' interval on weekend days",
-     xlab="", ylab="# of steps", ylim=c(0,240), col="blue", axes=FALSE)
-axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
-     labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
-axis(2, at=seq(0, 240, by=20), cex.axis=0.8) 
-box()
+
+## represent the two patterns using a panel plot with lattice xyplot
+library(lattice)
+xyplot(steps ~ rep(seq(11,298),2) | TypeOfDay, data=TypeOfDay.avgs, type="l",
+       lwd=2,  layout=c(1,2),
+       main="Comparison of weekday and weekend patterns",
+       xlab="5'-intervals", ylab="avg # of steps per 5'-interval",
+       scales = list(x = list(at = c(11, 82, 154, 226, 298),
+           labels = c("0000", "0555", "1155", "1755", "2355"))),
+       abline=list(v=c(11, 82, 154, 226, 298), h=c(0, 50, 100, 150, 200),
+                   lty=3, col="red")
+)       
 ```
 
 ![plot of chunk second.plot.comparing.weekdays.weekend.basic](figure/second.plot.comparing.weekdays.weekend.basic-1.png) 
 
-Looking at the comparison of the above figures and at the following figure - that for each interval plots the differnce between the number of steps averaged across  weekday days and the one averaged across weekend days - it comes up that in weekday days the activity starts earlier in the morning and has a greater peak, while in weekend days it decreases later and presents greater values from mid  morning to early night.
+Looking at the comparison of the above figures and at the following figure - that for each interval plots the difference between the number of steps averaged across  weekday days and the one averaged across weekend days - it comes up that in weekday days the activity starts earlier in the morning and has a greater peak, while in weekend days it decreases later and presents greater values from mid  morning to early night.
 
 
 ```r
+par(mfrow=c(1,1))
 DELTA<-TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"]-
          TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekend"]
 plot(DELTA, type="l",

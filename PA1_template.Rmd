@@ -233,32 +233,31 @@ This result comes from the fact that the dates with missing values correspond to
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-A new factor variable, called ``TypeOfDay [weekend, weekday]``, is added to the ``compl.act`` dataframe.
-```{r second.plot.comparing.weekdays.weekend.basic, results='markup', echo=TRUE}
+A new factor variable, called ``TypeOfDay [weekend, weekday]``, is added to the ``compl.act`` dataframe and on its basis the average number of steps per each 5'-interval of across weekday and weekend is calculated and put in the ``TypeOfDay.avgs`` new dataframe.
+
+```{r second.plot.comparing.weekdays.weekend.basic, results='markup', echo=TRUE, fig.width=10, fig.height=10}
 compl.act$TypeOfDay<-as.factor(ifelse(weekdays(compl.act$date) %in% dayofweek[1:5], "weekday","weekend"))
 ## create a new dataframe with the number of steps taken in 5'-intervals
 ## averaged across weekday days and weeekend days
 TypeOfDay.avgs<-aggregate(steps ~ interval+TypeOfDay, data=compl.act, FUN="mean")
-par(mfrow=c(2,1))
-plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"], type="l", lwd=2,
-     main="Average number of steps in each 5' interval on weekday days",
-     xlab="", ylab="# of steps", ylim=c(0,240),  col="red", bg="blue", axes=FALSE)
-axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
-     labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
-axis(2, at=seq(0, 240, by=20), cex.axis=0.8)
-box()
-plot(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekend"], type="l", lwd=2,
-     main="Average number of steps in each 5' interval on weekend days",
-     xlab="", ylab="# of steps", ylim=c(0,240), col="blue", axes=FALSE)
-axis(1, at=c(1, 6*12, 12*12, 18*12, 24*12),
-     labels=daily.pattern$interval[c(1, 6*12, 12*12, 18*12, 24*12)])
-axis(2, at=seq(0, 240, by=20), cex.axis=0.8) 
-box()
+
+## represent the two patterns using a panel plot with lattice xyplot
+library(lattice)
+xyplot(steps ~ rep(seq(11,298),2) | TypeOfDay, data=TypeOfDay.avgs, type="l",
+       lwd=2,  layout=c(1,2),
+       main="Comparison of weekday and weekend patterns",
+       xlab="5'-intervals", ylab="avg # of steps per 5'-interval",
+       scales = list(x = list(at = c(11, 82, 154, 226, 298),
+           labels = c("0000", "0555", "1155", "1755", "2355"))),
+       abline=list(v=c(11, 82, 154, 226, 298), h=c(0, 50, 100, 150, 200),
+                   lty=3, col="red")
+)       
 ```
 
-Looking at the comparison of the above figures and at the following figure - that for each interval plots the differnce between the number of steps averaged across  weekday days and the one averaged across weekend days - it comes up that in weekday days the activity starts earlier in the morning and has a greater peak, while in weekend days it decreases later and presents greater values from mid  morning to early night.
+Looking at the comparison of the above figures and at the following figure - that for each interval plots the difference between the number of steps averaged across  weekday days and the one averaged across weekend days - it comes up that in weekday days the activity starts earlier in the morning and has a greater peak, while in weekend days it decreases later and presents greater values from mid  morning to early night.
 
 ```{r plottting.the deltas, results="markup", echo=TRUE}
+par(mfrow=c(1,1))
 DELTA<-TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"]-
          TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekend"]
 plot(DELTA, type="l",
@@ -277,12 +276,17 @@ box()
 ## comparison of patterns belonging to weekday days and weekend days.
 
 ## library(lattice)
-## xyplot(steps ~ as.numeric(interval)| TypeOfDay, data=TypeOfDay.avgs, type="l",
-##        lwd=2,  layout=c(1,2), xlab="intervals")
+## xyplot(steps ~ rep(seq(11,298),2) | TypeOfDay, data=TypeOfDay.avgs, type="l",
+##       lwd=3,  layout=c(1,2),
+##       main="comparison of weekday and weekend patterns", xlab="intervals",
+##       scales = list(x = list(at = c(11, 82, 154, 226, 298),
+##           labels = c("0000", "0555", "1155", "1755", "2355"))),
+##       abline=list(v=c(11, 82, 154, 226, 298), lty=2, col="red"))       
+
 ## the following lines of code work well on the Console, but with knit2html
-##produce the same plot twice (first with only the red line for weeekday, then
-##with both the lines) --> so I decided to keep them as commented lines for
-##further study
+## produce the same plot twice (first with only the red line for weeekday, then
+## with both the lines) --> so I decided to keep them as commented lines for
+## further study
 ## add a red horizontal line at the "mean" value of steps for weekday days
 ## trellis.focus("panel", 1,1)
 ## panel.abline(h=mean(TypeOfDay.avgs$steps[TypeOfDay.avgs$TypeOfDay=="weekday"]),             col="red", lwd=2)
